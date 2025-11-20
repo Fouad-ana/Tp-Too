@@ -1,28 +1,55 @@
 package bank;
 
+import bank.tx.Transaction; // Pour afficher l'historique
+
 public class Main {
 
     public static void main(String[] args) {
         try {
-            // Création des comptes
-            Account a1 = new SavingsAccount("SA-1001", 200.0, 0.018);
-            Account a2 = new CreditAccount("CA-9001", 0.0, 500.0);
+            // 1. Création des comptes et de la banque
+            SavingsAccount a1 = new SavingsAccount("SA-1001", 200.0, 0.05); // 5% intérêt
+            CreditAccount a2 = new CreditAccount("CA-9001", 0.0, 500.0);
+            Bank bank = new Bank();
 
-            // Opérations
-            a1.deposit(50);      // Solde devient 250
-            a1.withdraw(20);     // Solde devient 230
+            System.out.println("--- État initial ---");
+            printBalance(a1); // Solde 200
+            printBalance(a2); // Solde 0
+
+            // 2. Opérations classiques
+            a1.deposit(100);      // +100 -> 300
+            a1.withdraw(50);      // -50  -> 250
+            a1.applyInterest();   // +5% de 250 = +12.5 -> 262.5
             
-            a2.withdraw(100);    // Autorisé car creditLimit est 500. Solde devient -100.
+            System.out.println("\n--- Après opérations sur A1 ---");
+            printBalance(a1);
 
-            // Affichage
-            System.out.printf("[Savings %s] Solde: %.2f%n", a1.getAccountNumber(), a1.getBalance());
-            System.out.printf("[Credit %s] Solde: %.2f%n", a2.getAccountNumber(), a2.getBalance());
+            // 3. Test du Transfert (Nouveauté TP2)
+            System.out.println("\n--- Transfert de 100.00 de A1 vers A2 ---");
+            bank.transfer(a1, a2, 100); 
+            
+            printBalance(a1); // Devrait être 162.5
+            printBalance(a2); // Devrait être 100.0
 
-            // Test d'erreur (décommente pour tester l'exception)
-            // a1.withdraw(1000); // Devrait planter
+            // 4. Affichage de l'historique complet (Transactions)
+            System.out.println("\n=== HISTORIQUE DETAILLÉ ===");
+            
+            System.out.println("Historique A1 (Epargne):");
+            for (Transaction t : a1.history()) {
+                System.out.println("  " + t);
+            }
+
+            System.out.println("\nHistorique A2 (Crédit):");
+            for (Transaction t : a2.history()) {
+                System.out.println("  " + t);
+            }
 
         } catch (BusinessRuleViolation e) {
-            System.out.println("Erreur métier : " + e.getMessage());
+            System.err.println("ERREUR METIER : " + e.getMessage());
         }
+    }
+
+    // Petite méthode utilitaire pour afficher le solde
+    private static void printBalance(Account a) {
+        System.out.printf("[%s] Solde : %.2f%n", a.getAccountNumber(), a.getBalance());
     }
 }

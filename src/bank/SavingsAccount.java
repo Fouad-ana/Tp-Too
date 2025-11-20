@@ -1,32 +1,37 @@
 package bank;
 
+import bank.tx.TransactionType; // Import nécessaire
+
 public final class SavingsAccount extends Account {
 
-    private final double interestRate; // Taux d'intérêt
+    private final double interestRate;
 
     public SavingsAccount(String id, double initial, double interestRate) {
-        super(id, initial); // Appel du constructeur du parent (Account)
+        super(id, initial);
         this.interestRate = interestRate;
     }
 
     @Override
-    public void withdraw(double amount) {
-        // 1. Vérifier que le montant est positif
+    public void withdraw(double amount, TransactionType type) {
+        // 1. Vérifier le montant
         if (amount <= 0) {
-            throw new BusinessRuleViolation("Le montant du retrait doit être positif !");
+            throw new BusinessRuleViolation("Le montant doit être > 0");
         }
         
-        // 2. Vérifier que le solde restera positif (PAS DE DÉCOUVERT)
-        if (this.balance - amount < 0) {
-            throw new BusinessRuleViolation("Fonds insuffisants (Compte Épargne)");
+        // 2. Vérifier le solde (Pas de découvert autorisé)
+        if (balance - amount < 0) {
+            throw new BusinessRuleViolation("Solde insuffisant (Épargne)");
         }
-
-        // 3. Effectuer le retrait
+        
+        // 3. Retirer et Enregistrer avec le bon type
         this.balance -= amount;
+        recordTransaction(type, amount);
     }
-    
-    // Méthode bonus (section 6 du PDF)
+
+    // Méthode pour les intérêts
     public void applyInterest() {
-        this.balance += this.balance * interestRate;
+        double interest = this.balance * this.interestRate;
+        this.balance += interest;
+        recordTransaction(TransactionType.INTEREST, interest);
     }
 }

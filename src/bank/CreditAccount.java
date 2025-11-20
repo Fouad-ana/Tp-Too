@@ -1,5 +1,7 @@
 package bank;
 
+import bank.tx.TransactionType; // Import nécessaire
+
 public final class CreditAccount extends Account {
 
     private final double creditLimit;
@@ -10,16 +12,17 @@ public final class CreditAccount extends Account {
     }
 
     @Override
-    public void withdraw(double amount) {
+    public void withdraw(double amount, TransactionType type) {
         if (amount <= 0) {
-            throw new BusinessRuleViolation("Le montant doit être positif !");
+            throw new BusinessRuleViolation("Le montant doit être > 0");
         }
 
-        // Règle : Le solde ne doit pas descendre en dessous de -creditLimit
-        if (this.balance - amount < -creditLimit) {
+        // Vérifier la limite de crédit
+        if (balance - amount < -creditLimit) {
             throw new BusinessRuleViolation("Limite de crédit dépassée !");
         }
 
         this.balance -= amount;
+        recordTransaction(type, amount);
     }
 }
