@@ -25,7 +25,7 @@ public class Main {
 
             // 3. Test du Transfert (Nouveauté TP2)
             System.out.println("\n--- Transfert de 100.00 de A1 vers A2 ---");
-            bank.transfer(a1, a2, 100); 
+            bank.transfer(a1.getId(), a2.getId(), 100.0);
             
             printBalance(a1); // Devrait être 162.5
             printBalance(a2); // Devrait être 100.0

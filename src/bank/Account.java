@@ -7,6 +7,10 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class Account {
+	// Ajoute ceci dans Account.java
+	public String getId() {
+        return this.accountNumber;
+    }
 
     protected final String accountNumber;
     protected double balance;
@@ -65,4 +69,8 @@ public abstract class Account {
     public List<Transaction> history() {
         return Collections.unmodifiableList(transactions);
     }
+ // Getter pour récupérer l'ID
+    public String accountNumber() {
+        return  this.accountNumber;
+    } 
 }

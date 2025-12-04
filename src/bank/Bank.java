@@ -1,27 +1,46 @@
 package bank;
 
-import bank.tx.TransactionType;
+import java.util.HashMap;
+import java.util.Map;
+import bank.errors.*; // On importe nos nouvelles exceptions
 
 public class Bank {
+    
+    private Map<String, Account> accounts = new HashMap<>();
 
-    // Méthode pour effectuer le virement de manière atomique
-    public void transfer(Account from, Account to, double amount) {
-        // 1. Vérification basique
-        if (amount <= 0) {
-            throw new BusinessRuleViolation("Le montant du virement doit être positif");
-        }
-
-        // 2. Retrait chez l'émetteur (Type: TRANSFER_OUT)
-        // Si le solde est insuffisant, withdraw() lance une exception et tout s'arrête ici.
-        from.withdraw(amount, TransactionType.TRANSFER_OUT);
-        
-        // 3. Dépôt chez le bénéficiaire (Type: TRANSFER_IN)
-        try {
-            to.deposit(amount, TransactionType.TRANSFER_IN);
-        } catch (Exception e) {
-            // Cas critique (ex: compte destinataire fermé/invalide).
-            // Pour ce TP, on laisse l'erreur remonter.
-            throw e; 
-        }
+    public void addAccount(Account a) {
+        accounts.put(a.getId(), a);
     }
+    
+    // Nouvelle version atomique et loggée
+    public void transfer(String fromId, String toId, double amount) {
+        // 1. Vérifications (Exceptions)
+        if (!accounts.containsKey(fromId) || !accounts.containsKey(toId)) {
+            throw new UnknownAccountException("Compte introuvable : " + fromId + " ou " + toId);
+        }
+        
+        if (amount <= 0) {
+            throw new InvalidAmountException("Le montant doit être positif : " + amount);
+        }
+
+        try {
+            Account src = accounts.get(fromId);
+            Account dst = accounts.get(toId);
+
+            // 2. Action
+            src.withdraw(amount); 
+            dst.deposit(amount);
+            
+            // 3. SUCCÈS -> On écrit dans le journal (Logger)
+            Logger.logInfo("Transfert OK " + amount + " EUR " + fromId + " -> " + toId);
+
+        } catch (Exception e) {
+            // 4. ECHEC -> On écrit l'erreur dans le journal
+            Logger.logError("Transfert FAILED " + fromId + " -> " + toId + " : " + e.getMessage());
+            
+            // Et on lance l'exception pour prévenir le programme
+            throw new TransferException("Echec du transfert", e);
+        }
+
 }
+    }
