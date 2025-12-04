@@ -1,76 +1,99 @@
- package bank;
+package bank;
 
-import bank.tx.Transaction;
-import bank.tx.TransactionType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import bank.strategies.*; // Pour les frais (Ex 1)
+import bank.tx.Transaction;
+import bank.tx.TransactionType;
+import bank.errors.*; // Pour les exceptions (TP4)
+
 public abstract class Account {
-	// Ajoute ceci dans Account.java
-	public String getId() {
-        return this.accountNumber;
+
+    // --- STRATÉGIE (Exercice 1) ---
+    private FeePolicy feePolicy = new NoFeePolicy(); 
+
+    public void setFeePolicy(FeePolicy feePolicy) {
+        this.feePolicy = feePolicy;
+    }
+    
+    protected FeePolicy getFeePolicy() {
+        return this.feePolicy;
     }
 
+    // --- ATTRIBUTS ---
     protected final String accountNumber;
     protected double balance;
-    
-    // Liste pour stocker l'historique (TP2)
     private final List<Transaction> transactions = new ArrayList<>();
 
+    // --- CONSTRUCTEUR ---
     protected Account(String accountNumber, double initial) {
         this.accountNumber = accountNumber;
         this.balance = initial;
     }
 
-    // Méthode interne pour créer et ajouter une transaction
+    // --- OUTILS ---
+    public String getId() { return this.accountNumber; }
+    public String getAccountNumber() { return accountNumber; }
+    public double getBalance() { return balance; }
+
+    public List<Transaction> history() {
+        return Collections.unmodifiableList(transactions);
+    }
+
     protected void recordTransaction(TransactionType type, double amount) {
         Transaction tx = new Transaction(type, amount, this.balance);
         transactions.add(tx);
     }
 
-    // --- MÉTHODES DE DÉPÔT ---
-
-    // Version 1 (Complète) : Permet de préciser le type (ex: TRANSFER_IN)
-    public final void deposit(double amount, TransactionType type) {
-        if (amount <= 0) {
-            throw new BusinessRuleViolation("Montant invalide (doit être > 0)");
-        }
-        this.balance += amount;
-        recordTransaction(type, amount);
-    }
-
-    // Version 2 (Simplifiée) : Par défaut, c'est un DEPOSIT
+    // --- DÉPÔT ---
     public final void deposit(double amount) {
-        deposit(amount, TransactionType.DEPOSIT);
+        if (amount <= 0) throw new InvalidAmountException("Montant invalide");
+        this.balance += amount;
+        recordTransaction(TransactionType.DEPOSIT, amount);
     }
 
-    // --- MÉTHODES DE RETRAIT ---
+    // =========================================================
+    // === PATTERN TEMPLATE METHOD (Exercice 2) ===
+    // =========================================================
 
-    // Version 1 (Abstraite) : Force les enfants à gérer le type de transaction
-    public abstract void withdraw(double amount, TransactionType type);
+    /**
+     * Méthode FINALE : C'est le "Patron". 
+     * Elle définit l'algorithme strict du retrait et personne ne peut la changer.
+     */
+    public final void withdraw(double amount) {
+        // 1. Validation de base
+        if (amount <= 0) {
+            throw new InvalidAmountException("Le montant doit être positif");
+        }
 
-    // Version 2 (Simplifiée) : Par défaut, c'est un WITHDRAW
-    public void withdraw(double amount) {
-        withdraw(amount, TransactionType.WITHDRAW);
+        // 2. Validation spécifique au type de compte (Méthode abstraite)
+        // (Ex: Vérifier le découvert pour CreditAccount, ou le solde pour Savings)
+        checkSpecificRules(amount);
+
+        // 3. Application du retrait (Méthode abstraite)
+        // (Ex: balance -= amount)
+        applyWithdraw(amount);
+        
+        // 4. Enregistrement de la transaction principale
+        recordTransaction(TransactionType.WITHDRAW, amount);
+
+        // 5. Application des frais (STRATEGY PATTERN - Exercice 1)
+        double fee = feePolicy.computeFee(amount);
+        if (fee > 0) {
+            this.balance -= fee;
+            recordTransaction(TransactionType.BANK_FEE, fee);
+        }
+
+        // 6. Logger (TP4)
+        Logger.logInfo("Withdraw OK: " + amount + " (Frais: " + fee + ") sur " + accountNumber);
     }
 
-    // --- ACCESSEURS & HISTORIQUE ---
-
-    public final String getAccountNumber() { 
-        return accountNumber; 
-    }
+    // --- MÉTHODES ABSTRAITES (Hooks) ---
+    // Les sous-classes DOIVENT implémenter ces méthodes pour préciser LEUR comportement
     
-    public final double getBalance() { 
-        return balance; 
-    }
-
-    // Retourne une copie non modifiable de la liste (Sécurité)
-    public List<Transaction> history() {
-        return Collections.unmodifiableList(transactions);
-    }
- // Getter pour récupérer l'ID
-    public String accountNumber() {
-        return  this.accountNumber;
-    } 
+    protected abstract void checkSpecificRules(double amount);
+    
+    protected abstract void applyWithdraw(double amount);
 }

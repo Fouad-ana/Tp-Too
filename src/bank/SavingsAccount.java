@@ -1,37 +1,34 @@
 package bank;
 
-import bank.tx.TransactionType; // Import nécessaire
+import bank.errors.*; // Pour les exceptions
 
-public final class SavingsAccount extends Account {
+public class SavingsAccount extends Account {
+    
+    private double interestRate;
 
-    private final double interestRate;
-
-    public SavingsAccount(String id, double initial, double interestRate) {
-        super(id, initial);
+    public SavingsAccount(String id, double balance, double interestRate) {
+        super(id, balance);
         this.interestRate = interestRate;
     }
 
-    @Override
-    public void withdraw(double amount, TransactionType type) {
-        // 1. Vérifier le montant
-        if (amount <= 0) {
-            throw new BusinessRuleViolation("Le montant doit être > 0");
-        }
-        
-        // 2. Vérifier le solde (Pas de découvert autorisé)
-        if (balance - amount < 0) {
-            throw new BusinessRuleViolation("Solde insuffisant (Épargne)");
-        }
-        
-        // 3. Retirer et Enregistrer avec le bon type
-        this.balance -= amount;
-        recordTransaction(type, amount);
+    public void applyInterest() {
+        this.balance += this.balance * interestRate;
     }
 
-    // Méthode pour les intérêts
-    public void applyInterest() {
-        double interest = this.balance * this.interestRate;
-        this.balance += interest;
-        recordTransaction(TransactionType.INTEREST, interest);
+    // --- TEMPLATE METHOD IMPLEMENTATION ---
+
+    @Override
+    protected void checkSpecificRules(double amount) {
+        // Règle du Compte Épargne : On ne peut pas être à découvert
+        if (this.balance < amount) {
+            // On utilise l'exception existante (ou BusinessRuleViolation si tu l'as gardée)
+            throw new TransferException("Solde insuffisant pour le retrait", new Exception("Règle Epargne"));
+        }
+    }
+
+    @Override
+    protected void applyWithdraw(double amount) {
+        // Action simple : on enlève l'argent
+        this.balance -= amount;
     }
 }

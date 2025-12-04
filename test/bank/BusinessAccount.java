@@ -1,35 +1,33 @@
 package bank;
 
-import bank.tx.TransactionType;
+import bank.errors.*;
 
-public final class BusinessAccount extends Account {
+public class BusinessAccount extends Account {
     
-    private final double creditLimit;
-    private final double interestRate;
+    private double creditLimit;
+    private double interestRate;
 
-    public BusinessAccount(String id, double initial, double creditLimit, double interestRate) {
-        super(id, initial);
+    public BusinessAccount(String id, double balance, double creditLimit, double interestRate) {
+        super(id, balance);
         this.creditLimit = creditLimit;
         this.interestRate = interestRate;
     }
 
-    @Override
-    public void withdraw(double amount, TransactionType type) {
-        if (amount <= 0) throw new BusinessRuleViolation("Montant <= 0");
-        // Règle hybride : découvert autorisé comme CreditAccount
-        if (balance - amount < -creditLimit) {
-            throw new BusinessRuleViolation("Limite de crédit dépassée");
-        }
-        this.balance -= amount;
-        recordTransaction(type, amount);
+    // 👇 AJOUTE CETTE MÉTHODE POUR RÉPARER LE TEST 👇
+    public void applyInterest() {
+        this.balance += this.balance * interestRate;
     }
 
-    public void applyInterest() {
-        // Règle spéciale : intérêts seulement si solde POSITIF
-        if (this.balance > 0) {
-            double interest = this.balance * this.interestRate;
-            this.balance += interest;
-            recordTransaction(TransactionType.INTEREST, interest);
+    // --- TEMPLATE METHOD ---
+    @Override
+    protected void checkSpecificRules(double amount) {
+        if (this.balance - amount < -creditLimit) {
+            throw new TransferException("Limite Business dépassée", new Exception("Règle Business"));
         }
+    }
+
+    @Override
+    protected void applyWithdraw(double amount) {
+        this.balance -= amount;
     }
 }

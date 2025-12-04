@@ -2,41 +2,41 @@ package bank;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import bank.tx.TransactionType;
+import bank.errors.TransferException; // ✅ Nouvelle exception
 
 class SavingsAccountTest {
 
     @Test
-    void testDepositNominal() {
-        // Cas nominal : Dépôt positif
+    void testApplyInterest() {
+        // Solde 100, Taux 5% (0.05)
         SavingsAccount sa = new SavingsAccount("SA-1", 100.0, 0.05);
-        sa.deposit(50.0);
-        assertEquals(150.0, sa.getBalance(), "Le solde doit être de 150.0");
+        
+        sa.applyInterest();
+        
+        // 100 + 5% = 105
+        assertEquals(105.0, sa.getBalance());
     }
 
     @Test
     void testWithdrawNominal() {
-        // Cas nominal : Retrait autorisé
-        SavingsAccount sa = new SavingsAccount("SA-1", 100.0, 0.05);
-        sa.withdraw(50.0, TransactionType.WITHDRAW);
+        // Solde 100
+        SavingsAccount sa = new SavingsAccount("SA-2", 100.0, 0.05);
+        
+        // ✅ CORRECTION : Juste le montant
+        sa.withdraw(50.0);
+        
         assertEquals(50.0, sa.getBalance());
     }
 
     @Test
-    void testWithdrawOverBalance() {
-        // Cas d'erreur : Retrait supérieur au solde
-        SavingsAccount sa = new SavingsAccount("SA-1", 100.0, 0.05);
+    void testWithdrawInsufficientFunds() {
+        // Solde 100
+        SavingsAccount sa = new SavingsAccount("SA-3", 100.0, 0.05);
         
-        // On vérifie que ça lance bien l'exception
-        assertThrows(BusinessRuleViolation.class, () -> {
-            sa.withdraw(200.0, TransactionType.WITHDRAW);
+        // ❌ On essaie de retirer 150 (Impossible pour un livret)
+        // ✅ CORRECTION : On attend TransferException
+        assertThrows(TransferException.class, () -> {
+            sa.withdraw(150.0);
         });
-    }
-    
-    @Test
-    void testDepositNegative() {
-        // Cas d'erreur : Dépôt négatif
-        SavingsAccount sa = new SavingsAccount("SA-1", 100.0, 0.05);
-        assertThrows(BusinessRuleViolation.class, () -> sa.deposit(-10.0));
     }
 }

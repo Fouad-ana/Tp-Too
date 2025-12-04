@@ -1,9 +1,9 @@
 package bank.tx;
 
 public enum TransactionType {
-    DEPOSIT,        // Dépôt
-    WITHDRAW,       // Retrait
-    TRANSFER_IN,    // Virement reçu
-    TRANSFER_OUT,   // Virement émis
-    INTEREST        // Intérêts
+    DEPOSIT,
+    WITHDRAW,
+    TRANSFER_IN,    // Si tu l'as ajouté avant
+    TRANSFER_OUT,   // Si tu l'as ajouté avant
+    BANK_FEE        // 👈 AJOUTE CELUI-CI (Frais bancaires)
 }
