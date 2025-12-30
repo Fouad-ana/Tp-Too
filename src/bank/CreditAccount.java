@@ -27,4 +27,7 @@ public class CreditAccount extends Account {
         // Action simple : on enlève l'argent
         this.balance -= amount;
     }
+    public double getCreditLimit() {
+        return this.creditLimit;
+    }
 }

@@ -43,4 +43,8 @@ public class Bank {
         }
 
 }
+ // Nécessaire pour le TP6 (Sérialisation)
+    public Iterable<Account> getAccounts() {
+        return this.accounts.values();
+    }
     }

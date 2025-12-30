@@ -1,2 +1,122 @@
-bin/
-*.class
+model Covoiturage
+
+-- ==========================================
+-- 1. DEFINITION DES CLASSES
+-- ==========================================
+
+class Passager
+attributes
+    nom : String
+    email : String
+end
+
+class Chauffeur
+attributes
+    nom : String
+    disponible : Boolean
+end
+
+class Vehicule
+attributes
+    immatriculation : String
+    modele : String
+end
+
+class Trajet
+attributes
+    depart : String
+    destination : String
+    distance : Real
+    duree : Integer
+    prix : Real
+    statut : String
+    notePassager : Integer
+operations
+    calculatePrice()
+    endRide()
+end
+
+class Paiement
+attributes
+    montant : Real
+    date : String
+end
+
+class Promotion
+attributes
+    code : String
+    reduction : Real
+end
+
+-- ==========================================
+-- 2. DEFINITION DES ASSOCIATIONS
+-- ==========================================
+
+association Possede between
+    Chauffeur[1] role chauffeur
+    Vehicule[*] role vehicules
+end
+
+association Demande between
+    Passager[1] role passager
+    Trajet[*] role trajets
+end
+
+association Conduit between
+    Chauffeur[0..1] role chauffeur
+    Trajet[*] role trajets
+end
+
+association Paye between
+    Trajet[1] role trajet
+    Paiement[0..1] role paiement
+end
+
+association Beneficie between
+    Passager[1] role passager
+    Promotion[*] role promotions
+end
+
+-- ==========================================
+-- 3. LES CONTRAINTES OCL (Le coeur du sujet)
+-- ==========================================
+
+constraints
+
+context Trajet
+    -- (a) Un chauffeur peut être assigné seulement s'il est disponible
+    inv ChauffeurDoitEtreDispo:
+        self.chauffeur.disponible = true
+
+    -- (d) Si terminé, alors évalué (ici on vérifie que la note existe)
+    inv EvaluationObligatoire:
+        self.statut = 'terminé' implies not self.notePassager.oclIsUndefined()
+
+    -- (f) Distance max 500km
+    inv DistanceMax:
+        self.distance <= 500
+
+context Chauffeur
+    -- (b) Max 3 véhicules
+    inv MaxTroisVehicules:
+        self.vehicules->size() <= 3
+
+context Promotion
+    -- (c) Valide si le passager a au moins 5 trajets terminés
+    inv PromoValide:
+        self.passager.trajets->select(t | t.statut = 'terminé')->size() >= 5
+
+context Vehicule
+    -- (e) Immatriculation unique
+    inv ImmatUnique:
+        Vehicule.allInstances()->isUnique(immatriculation)
+
+-- Pré et Post conditions des opérations
+
+context Trajet::calculatePrice()
+    -- (g) Distance et durée doivent être positives
+    pre ValidInputs: self.distance > 0 and self.duree > 0
+
+context Trajet::endRide()
+    -- (h) Le statut devient 'terminé'
+    post IsFinished: self.statut = 'terminé'

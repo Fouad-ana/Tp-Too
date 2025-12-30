@@ -31,4 +31,7 @@ public class SavingsAccount extends Account {
         // Action simple : on enlève l'argent
         this.balance -= amount;
     }
+    public double getInterestRate() {
+        return this.interestRate;
+    }
 }
