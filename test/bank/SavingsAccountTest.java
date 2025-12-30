@@ -2,6 +2,8 @@ package bank;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import bank.domain.SavingsAccount;
 import bank.errors.TransferException; // ✅ Nouvelle exception
 
 class SavingsAccountTest {

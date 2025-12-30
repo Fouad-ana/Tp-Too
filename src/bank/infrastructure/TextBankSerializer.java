@@ -1,6 +1,10 @@
-package bank.persistence;
+package bank.infrastructure;
 
 import bank.*;
+import bank.domain.Account;
+import bank.domain.Bank;
+import bank.domain.CreditAccount;
+import bank.domain.SavingsAccount;
 import bank.tx.Transaction;
 import bank.tx.TransactionType;
 

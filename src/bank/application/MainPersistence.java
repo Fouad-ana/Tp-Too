@@ -1,7 +1,13 @@
-package bank;
+package bank.application;
 
-import bank.persistence.FileBankRepository;
-import bank.persistence.TextBankSerializer;
+import bank.BusinessAccount;
+import bank.domain.Account;
+import bank.domain.Bank;
+import bank.domain.CreditAccount;
+import bank.domain.SavingsAccount;
+import bank.infrastructure.FileBankRepository;
+import bank.infrastructure.TextBankSerializer;
+
 import java.nio.file.Path;
 
 public class MainPersistence {

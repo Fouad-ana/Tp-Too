@@ -1,5 +1,6 @@
 package bank;
 
+import bank.domain.Account;
 import bank.errors.*;
 
 public class BusinessAccount extends Account {

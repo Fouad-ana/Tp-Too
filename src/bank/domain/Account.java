@@ -1,13 +1,17 @@
-package bank;
+package bank.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import bank.strategies.*; // Pour les frais (Ex 1)
+// Pour les exceptions (TP4)
+import bank.errors.InvalidAmountException;
+import bank.infrastructure.Logger;
+// Pour les frais (Ex 1)
+import bank.strategies.FeePolicy;
+import bank.strategies.NoFeePolicy;
 import bank.tx.Transaction;
 import bank.tx.TransactionType;
-import bank.errors.*; // Pour les exceptions (TP4)
 
 public abstract class Account {
 

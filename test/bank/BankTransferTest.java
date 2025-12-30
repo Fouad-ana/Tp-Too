@@ -2,6 +2,10 @@ package bank;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import bank.domain.Bank;
+import bank.domain.CreditAccount;
+import bank.domain.SavingsAccount;
 import bank.errors.*;
 
 class BankTransferTest {

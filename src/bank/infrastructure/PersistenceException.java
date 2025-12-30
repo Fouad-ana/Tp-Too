@@ -1,4 +1,4 @@
-package bank.persistence;
+package bank.infrastructure;
 
 // Cette exception sert à masquer les erreurs techniques (IOException, SQL, etc.)
 public class PersistenceException extends RuntimeException {

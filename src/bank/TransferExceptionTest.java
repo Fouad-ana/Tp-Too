@@ -7,6 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import bank.domain.Bank;
+import bank.domain.CreditAccount;
+import bank.domain.SavingsAccount;
 import bank.errors.*;
 
 class TransferExceptionTest {

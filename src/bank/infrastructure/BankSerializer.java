@@ -1,6 +1,6 @@
-package bank.persistence;
+package bank.infrastructure;
 
-import bank.Bank;
+import bank.domain.Bank;
 
 public interface BankSerializer {
     // Transforme l'objet Bank en texte

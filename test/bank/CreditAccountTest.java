@@ -2,6 +2,8 @@ package bank;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import bank.domain.CreditAccount;
 import bank.errors.TransferException; // ✅ Important : Nouvelle exception TP4/TP5
 
 class CreditAccountTest {

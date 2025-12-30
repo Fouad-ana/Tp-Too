@@ -1,8 +1,13 @@
-package bank;
+package bank.domain;
 
 import java.util.HashMap;
 import java.util.Map;
-import bank.errors.*; // On importe nos nouvelles exceptions
+
+// On importe nos nouvelles exceptions
+import bank.errors.InvalidAmountException;
+import bank.errors.TransferException;
+import bank.errors.UnknownAccountException;
+import bank.infrastructure.Logger;
 
 public class Bank {
     

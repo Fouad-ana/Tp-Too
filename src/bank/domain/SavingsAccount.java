@@ -1,4 +1,4 @@
-package bank;
+package bank.domain;
 
 import bank.errors.*; // Pour les exceptions
 

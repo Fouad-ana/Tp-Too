@@ -1,9 +1,10 @@
-package bank.persistence;
+package bank.infrastructure;
 
-import bank.Bank;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import bank.domain.Bank;
 
 public class FileBankRepository implements BankRepository {
 

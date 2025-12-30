@@ -1,4 +1,4 @@
-package bank;
+package bank.infrastructure;
 
 import java.io.FileWriter;
 import java.io.IOException;
